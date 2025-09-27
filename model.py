@@ -99,7 +99,7 @@ class Transformer (nn.Module):
     def __init__(self, src_vocab_size, tgt_vocab_size, d_model, num_head,  num_layers, d_ff, max_seq_length, dropout ):
         super(Transformer, self).__init__()
         self.encoder_embedding = nn.Embedding(src_vocab_size, d_model)
-        self.decoder_embedding = nn.Embedding(src_vocab_size, d_model)
+        self.decoder_embedding = nn.Embedding(tgt_vocab_size, d_model)
         self.positional_encoding= PositionalEncoding(d_model, max_seq_length)
 
         self.encoder_layers = nn.ModuleList([EncoderLayer(d_model, num_head, d_ff, dropout) for i in range(num_layers)])
@@ -122,10 +122,10 @@ class Transformer (nn.Module):
     def forward( self, src,tgt):
         src_mask, tgt_mask = self.generate_mask(src,tgt)
         src_embedded = self.dropout(self.positional_encoding(self.encoder_embedding(src)))
-        tgt_embedded = self.dropout(self.positional_encoding(self.decoder_embedding(src)))
+        tgt_embedded = self.dropout(self.positional_encoding(self.decoder_embedding(tgt)))
         enc_output = src_embedded
         for enc_layer in self.encoder_layers:
-            enc_optput = enc_layer(enc_output,src_mask)
+            enc_output = enc_layer(enc_output,src_mask)
 
         dec_output = tgt_embedded
         for dec_layer in self.decoder_layers:
